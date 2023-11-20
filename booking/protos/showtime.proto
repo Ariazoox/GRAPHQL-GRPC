@@ -1,7 +1,8 @@
 syntax = "proto3";
 
 service Showtime {
-    rpc GetShwotime(Empty) returns (ShowtimeList) {}
+    rpc GetShowtime(Empty) returns (ShowtimeList) {}
+    rpc Get_movie_by_date(Empty) returns (ShowtimeList) {}
 }
 
 message ShowtimeList {
