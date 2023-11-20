@@ -14,8 +14,8 @@ class ShowtimeStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GetShwotime = channel.unary_unary(
-                '/Showtime/GetShwotime',
+        self.GetShowtime = channel.unary_unary(
+                '/Showtime/GetShowtime',
                 request_serializer=showtime__pb2.Empty.SerializeToString,
                 response_deserializer=showtime__pb2.ShowtimeList.FromString,
                 )
@@ -24,7 +24,7 @@ class ShowtimeStub(object):
 class ShowtimeServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def GetShwotime(self, request, context):
+    def GetShowtime(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -33,8 +33,8 @@ class ShowtimeServicer(object):
 
 def add_ShowtimeServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GetShwotime': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetShwotime,
+            'GetShowtime': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetShowtime,
                     request_deserializer=showtime__pb2.Empty.FromString,
                     response_serializer=showtime__pb2.ShowtimeList.SerializeToString,
             ),
@@ -49,7 +49,7 @@ class Showtime(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def GetShwotime(request,
+    def GetShowtime(request,
             target,
             options=(),
             channel_credentials=None,
@@ -59,7 +59,7 @@ class Showtime(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/Showtime/GetShwotime',
+        return grpc.experimental.unary_unary(request, target, '/Showtime/GetShowtime',
             showtime__pb2.Empty.SerializeToString,
             showtime__pb2.ShowtimeList.FromString,
             options, channel_credentials,
