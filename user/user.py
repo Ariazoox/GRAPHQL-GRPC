@@ -21,14 +21,14 @@ PORT = 3203
 HOST = 'localhost'
 
 with open('{}/data/users.json'.format("."), "r") as jsf:
-   users = json.load(jsf)["users"]
-   print(users)
+    users = json.load(jsf)["users"]
+    print(users)
 
 
 # Point d'entrée qui renvoie à la page d'accueil "Welcome to the User service!"
 @app.route("/", methods=['GET'])
 def home():
-   return "<h1 style='color:blue'>Welcome to the User service!</h1>"
+    return "<h1 style='color:blue'>Welcome to the User service!</h1>"
 
 
 # Point d'entrée pour afficher un utilisateur selon son ID
@@ -42,6 +42,7 @@ def get_user_by_id(userid):
             return res
     # Message d'erreur au cas où l'ID serait inexistant
     return make_response(jsonify({"error": "User ID not found"}), 400)
+
 
 # Point d'accès qui affiche, pour un utilisateur donné, ses réservations.
 @app.route("/users/<userid>/bookings", methods=["GET"])
@@ -83,14 +84,15 @@ def get_user_bookings(userid):
 
     return make_response(jsonify(returned_booking), 200)
 
+
 # Ajoute un booking pour un utilisateur selon son ID donné en paramètre
 @app.route("/users/<userid>/bookings", methods=["POST"])
 def book_for_user(userid):
     data = request.get_json()
-    
-    # Appel du service booking 
+
+    # Appel du service booking
     with grpc.insecure_channel("localhost:3002") as channel:
-        
+
         stub = booking_pb2_grpc.BookingStub(channel)
         # Appel de la fonction AddBookingByUser du service booking
         try:
@@ -112,6 +114,7 @@ def book_for_user(userid):
                 400,
             )
 
+
 if __name__ == "__main__":
-   print("Server running on port %s"%(PORT))
-   app.run(host=HOST, port=PORT)
+    print("Server running on port %s" % (PORT))
+    app.run(host=HOST, port=PORT)
