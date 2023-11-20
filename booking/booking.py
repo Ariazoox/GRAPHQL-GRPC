@@ -13,27 +13,37 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
         with open('{}/data/bookings.json'.format("."), "r") as jsf:
             self.db = json.load(jsf)["bookings"]
 
+    # Fonction qui récupère les résérvations d'un utilisateur 
     def GetUserBookings(self, request, context):
+        # Boucle qui parcourt nos bookings
         for booking in self.db:
+            # Vérification de l'existence de l'ID dans le booking.json
             if request.userid == booking["userid"]:
                 return booking_pb2.BookingData(
                     userid=booking["userid"], dates=booking["dates"])
-
+    
+    # Fonction qui ajoute une résérvation pour un utilisateur en faisant appel à Showtime pour la vérification
     def AddBookingByUser(self, request, context):
         schedule = []
         with grpc.insecure_channel("localhost:3000") as channel:
             stub = showtime_pb2_grpc.ShowtimeStub(channel)
             schedule = stub.GetShwotime(showtime_pb2.Empty()).schedule
-
+        # Boucle qui parcourt nos schedule
         for schedule_item in schedule:
+            # On vérifie la correspodance des dates/movieid
             if (
                     schedule_item.date == request.date
                     and request.movieid in schedule_item.movies
             ):
+                # Boucle qui parcourt les données de booking.json
                 for booking in self.db:
+                    # Vérification de l'id
                     if booking["userid"] == request.userid:
+                        # Boucle pour parcourir les dates dans booking.json
                         for item in booking["dates"]:
+                            # Vérification des dates
                             if item["date"] == request.date:
+                                # On vérifie si le movie id est inexistant, si c'est le cas, on l'ajoute
                                 if request.movieid not in item["movies"]:
                                     item["movies"].append(request.movieid)
                                 else:
@@ -48,7 +58,7 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
                         return booking_pb2.BookingData(
                             userid=booking["userid"], dates=booking["dates"]
                         )
-                # As of now we assume the userid is valid
+                # On considère cette fois le user id valide
                 self.db.append(
                     {
                         "userid": request.userid,
