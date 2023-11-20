@@ -21,21 +21,21 @@ movie.set_field('actors', r.resolve_actors_in_movie)
 schema = make_executable_schema(type_defs, movie, query, mutation, actor)
 
 
-# root message
+# point d'entrée qui renvoie à la page d'accueil "Welcome to the Movie service!"
 @app.route("/", methods=['GET'])
 def home():
     return make_response("<h1 style='color:blue'>Welcome to the Movie service!</h1>",200)
 
-#####
-# graphql entry points
 
+# renvoie vers le Playground graphql.
 @app.route('/graphql', methods=['GET'])
 def playground():
     return PLAYGROUND_HTML, 200
-    
+
+# Permet de tester des requête Graphql 
 @app.route('/graphql', methods=['POST'])
 def graphql_server():
-    # todo to complete
+
     data = request.get_json()
     success, result = graphql_sync(
         schema,
