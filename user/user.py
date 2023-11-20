@@ -17,8 +17,6 @@ import booking_pb2_grpc
 
 app = Flask(__name__)
 
-app = Flask(__name__)
-
 PORT = 3203
 HOST = 'localhost'
 
@@ -27,42 +25,42 @@ with open('{}/data/users.json'.format("."), "r") as jsf:
    print(users)
 
 
-# point d'entrée qui renvoie à la page d'accueil "Welcome to the User service!"
+# Point d'entrée qui renvoie à la page d'accueil "Welcome to the User service!"
 @app.route("/", methods=['GET'])
 def home():
    return "<h1 style='color:blue'>Welcome to the User service!</h1>"
 
 
-# point d'entrée pour afficher un utilisateur selon son ID
+# Point d'entrée pour afficher un utilisateur selon son ID
 @app.route("/users/<userid>", methods=['GET'])
-def get_user_byid(userid):
-    # Boucle qui parcourt nos users
+def get_user_by_id(userid):
+    # Boucle parcourant nos users
     for user in users:
         # Vérification de la correspondance des ID
         if str(user["id"]) == str(userid):
-            res = make_response(jsonify(user),200)
+            res = make_response(jsonify(user), 200)
             return res
     # Message d'erreur au cas où l'ID serait inexistant
-    return make_response(jsonify({"error":"User ID not found"}),400)
+    return make_response(jsonify({"error": "User ID not found"}), 400)
 
-# Point d'accès qui affiche pour un utilisateur donné, ses résérvations.
+# Point d'accès qui affiche, pour un utilisateur donné, ses réservations.
 @app.route("/users/<userid>/bookings", methods=["GET"])
 def get_user_bookings(userid):
     bookings = []
-    returnedBooking = {}
+    returned_booking = {}
     # Appel au service booking
     with grpc.insecure_channel("localhost:3002") as channel:
         stub = booking_pb2_grpc.BookingStub(channel)
         booking = stub.GetUserBookings(booking_pb2.UserId(userid=userid))
 
-        returnedBooking["userid"] = booking.userid
-        returnedBooking["dates"] = []
+        returned_booking["userid"] = booking.userid
+        returned_booking["dates"] = []
 
     for date_item in booking.dates:
         mapped_movies = []
         for movie_id in date_item.movies:
-            # Requête GRAPHQL qui vient remplacer la requête REST
-            qurey = """
+            # Requête GRAPHQL qui remplace la requête REST
+            query = """
                 {
                     movie_with_id (_id: "%s"){
                         title,
@@ -75,15 +73,15 @@ def get_user_bookings(userid):
                 movie_id
             )
             # Appel du service movie
-            res = requests.post(url="http://localhost:3001/graphql", json={"query": qurey})
+            res = requests.post(url="http://localhost:3001/graphql", json={"query": query})
             movie = res.json()
             mapped_movies.append(movie["data"]["movie_with_id"])
 
-        returnedBooking["dates"].append(
+        returned_booking["dates"].append(
             {"date": date_item.date, "movies": mapped_movies}
         )
 
-    return make_response(jsonify(returnedBooking), 200)
+    return make_response(jsonify(returned_booking), 200)
 
 # Ajoute un booking pour un utilisateur selon son ID donné en paramètre
 @app.route("/users/<userid>/bookings", methods=["POST"])
@@ -101,19 +99,19 @@ def book_for_user(userid):
                     userid=userid, date=data["date"], movieid=data["movieid"]
                 )
             )
-            return make_response(jsonify({"message": "booking added successfully"}))
+            return make_response(jsonify({"message": "Booking added successfully"}))
         # Message d'erreur si la vérification échoue
         except Exception as e:
             print(e)
             return make_response(
                 jsonify(
                     {
-                        "error": "the date or the movieid is not correct, make sure the date is in the showtime table, that the movie is part of it, and that's not already reserved"
+                        "error": "The date or the movieid is not correct, make sure the date is in the showtime table, that the movie is part of it, and that it's not already reserved."
                     }
                 ),
                 400,
             )
 
 if __name__ == "__main__":
-   print("Server running in port %s"%(PORT))
+   print("Server running on port %s"%(PORT))
    app.run(host=HOST, port=PORT)
