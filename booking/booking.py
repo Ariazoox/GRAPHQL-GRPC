@@ -13,7 +13,7 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
         with open('{}/data/bookings.json'.format("."), "r") as jsf:
             self.db = json.load(jsf)["bookings"]
 
-    # Fonction qui récupère les réservations d'un utilisateur 
+    # Fonction qui récupère les réservations d'un utilisateur
     def GetUserBookings(self, request, context):
         # Boucle qui parcourt nos bookings
         for booking in self.db:
@@ -21,13 +21,13 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
             if request.userid == booking["userid"]:
                 return booking_pb2.BookingData(
                     userid=booking["userid"], dates=booking["dates"])
-    
+
     # Fonction qui ajoute une réservation pour un utilisateur en faisant appel à Showtime pour la vérification
     def AddBookingByUser(self, request, context):
         schedule = []
         with grpc.insecure_channel("localhost:3000") as channel:
             stub = showtime_pb2_grpc.ShowtimeStub(channel)
-            schedule = stub.GetShwotime(showtime_pb2.Empty()).schedule
+            schedule = stub.GetShowtime(showtime_pb2.Empty()).schedule
         # Boucle qui parcourt nos schedules
         for schedule_item in schedule:
             # On vérifie la correspondance des dates/movieid
