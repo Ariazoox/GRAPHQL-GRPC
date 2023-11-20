@@ -10,13 +10,13 @@ class ShowtimeServicer(showtime_pb2_grpc.ShowtimeServicer):
         with open('{}/data/times.json'.format("."), "r") as jsf:
             self.db = json.load(jsf)["schedule"]
     # Fonction qui renvoie les schedules
-    def GetShwotime(self, request, context):
+    def GetShowtime(self, request, context):
         return showtime_pb2.ShowtimeList(schedule=self.db)
 
         return showtime_pb2.ScheduleData(date='', movies=[])
 
     # Fonction qui renvoie les films affichés à une date donnée
-    def Get_movie_by_date(self, request, conext):
+    def GetMoviesByDate(self, request, context):
         # Boucle qui parcourt nos schedules dans times.json
         for booking in self.db:
             # Vérification de la correspondance de la date
@@ -25,15 +25,12 @@ class ShowtimeServicer(showtime_pb2_grpc.ShowtimeServicer):
 
         return showtime_pb2.ScheduleData(date='', movies=[])
 
-
-
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     showtime_pb2_grpc.add_ShowtimeServicer_to_server(ShowtimeServicer(), server)
     server.add_insecure_port('[::]:3000')
     server.start()
     server.wait_for_termination()
-
 
 if __name__ == '__main__':
     serve()
