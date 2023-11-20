@@ -50,6 +50,7 @@ def get_user_byid(userid):
 def get_user_bookings(userid):
     bookings = []
     returnedBooking = {}
+    # Appel au service booking
     with grpc.insecure_channel("localhost:3002") as channel:
         stub = booking_pb2_grpc.BookingStub(channel)
         booking = stub.GetUserBookings(booking_pb2.UserId(userid=userid))
@@ -60,6 +61,7 @@ def get_user_bookings(userid):
     for date_item in booking.dates:
         mapped_movies = []
         for movie_id in date_item.movies:
+            # Requête GRAPHQL qui vient remplacer la requête REST
             qurey = """
                 {
                     movie_with_id (_id: "%s"){
@@ -72,6 +74,7 @@ def get_user_bookings(userid):
             """ % (
                 movie_id
             )
+            # Appel du service movie
             res = requests.post(url="http://localhost:3001/graphql", json={"query": qurey})
             movie = res.json()
             mapped_movies.append(movie["data"]["movie_with_id"])
@@ -81,12 +84,17 @@ def get_user_bookings(userid):
         )
 
     return make_response(jsonify(returnedBooking), 200)
+
+# Ajoute un booking pour un utilisateur selon son ID donné en paramètre
 @app.route("/users/<userid>/bookings", methods=["POST"])
 def book_for_user(userid):
     data = request.get_json()
-
+    
+    # Appel du service booking 
     with grpc.insecure_channel("localhost:3002") as channel:
+        
         stub = booking_pb2_grpc.BookingStub(channel)
+        # Appel de la fonction AddBookingByUser du service booking
         try:
             stub.AddBookingByUser(
                 booking_pb2.BookingPayload(
@@ -94,6 +102,7 @@ def book_for_user(userid):
                 )
             )
             return make_response(jsonify({"message": "booking added successfully"}))
+        # Message d'erreur si la vérification échoue
         except Exception as e:
             print(e)
             return make_response(
