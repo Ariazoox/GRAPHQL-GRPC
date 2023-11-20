@@ -27,18 +27,25 @@ with open('{}/data/users.json'.format("."), "r") as jsf:
    print(users)
 
 
+# point d'entrée qui renvoie à la page d'accueil "Welcome to the User service!"
 @app.route("/", methods=['GET'])
 def home():
    return "<h1 style='color:blue'>Welcome to the User service!</h1>"
 
+
+# point d'entrée pour afficher un utilisateur selon son ID
 @app.route("/users/<userid>", methods=['GET'])
 def get_user_byid(userid):
+    # Boucle qui parcourt nos users
     for user in users:
+        # Vérification de la correspondance des ID
         if str(user["id"]) == str(userid):
             res = make_response(jsonify(user),200)
             return res
+    # Message d'erreur au cas où l'ID serait inexistant
     return make_response(jsonify({"error":"User ID not found"}),400)
 
+# Point d'accès qui affiche pour un utilisateur donné, ses résérvations.
 @app.route("/users/<userid>/bookings", methods=["GET"])
 def get_user_bookings(userid):
     bookings = []
