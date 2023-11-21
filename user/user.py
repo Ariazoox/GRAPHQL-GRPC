@@ -108,7 +108,7 @@ def book_for_user(userid):
             return make_response(
                 jsonify(
                     {
-                        "error": "The date or the movieid is not correct, make sure the date is in the showtime table, that the movie is part of it, and that it's not already reserved."
+                        "error": "La date ou le movieid sont incorrects."
                     }
                 ),
                 400,
