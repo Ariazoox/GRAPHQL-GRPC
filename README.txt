@@ -24,3 +24,5 @@ Lancer PyCharm, sélectionner "Open" puis ouvrez le dossier "GRAPHQL-GRPC".
 Vous aurez un message automatique de PyCharm pour installer un interprète Python, cliquez sur "Install".
 Vous aurez ensuite un autre message pour installer les requirements, donc encore une fois, cliquez sur "Install" (sinon, ouvrez le "Terminal" en bas, puis collez la commande suivante : pip install -r requirements.txt).
 Vous pourrez ensuite lancer chaque service en appuyant sur "Run" en haut à droite.
+ChatGPT
+Pour exécuter les requêtes, le principe est le même que dans le TP FLASK-REST, à l'exception des requêtes GRPC pour lesquelles il est nécessaire d'importer les fichiers protos avant de pouvoir invoquer les fonctions.
